@@ -1,3 +1,12 @@
+---
+title: SmartFin AI
+emoji: 💰
+colorFrom: green
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # SmartFin AI – Multi-Agent Personal Finance Assistant
 
 SmartFin AI is an intermediate-level, AI-powered personal finance management mobile application built with React Native (Expo) and a Python (FastAPI) backend using LangGraph multi-agent architecture, Google Gemini, and MongoDB Atlas.
