@@ -57,6 +57,16 @@ app.include_router(assistant.router, prefix="/api/assistant", tags=["AI Assistan
 app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 
 
+@app.get("/")
+async def root():
+    return {
+        "status": "running",
+        "app": "SmartFin AI Backend",
+        "health_endpoint": "/api/health",
+        "docs_endpoint": "/docs",
+    }
+
+
 @app.get("/api/health")
 async def health_check():
     from app.database.connection import get_database
