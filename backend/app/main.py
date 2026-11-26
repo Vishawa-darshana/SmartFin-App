@@ -1,10 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config.settings import get_settings
-from app.database.connection import init_db, close_db
-from app.database.seed import seed_default_categories
+from app.database.connection import ensure_db_ready, close_db
 
 from app.api.routes import (
     categories,
@@ -23,8 +22,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Connect to MongoDB Atlas, initialize Beanie collections/indexes, and seed default categories
-    await init_db()
-    await seed_default_categories(settings.APP_PROFILE_ID)
+    await ensure_db_ready(settings.APP_PROFILE_ID)
     yield
     # Shutdown: Close MongoDB Atlas connection cleanly
     await close_db()
@@ -36,6 +34,14 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    # Guarantees Beanie is initialized on Vercel serverless invocations even if lifespan is skipped
+    await ensure_db_ready(settings.APP_PROFILE_ID)
+    return await call_next(request)
+
 
 # CORS middleware for mobile client
 app.add_middleware(
